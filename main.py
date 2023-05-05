@@ -10,7 +10,7 @@ from PIL import Image
 pytesseract.pytesseract.tesseract_cmd = r'/usr/bin/tesseract'  # Asegúrate de que la ruta sea la correcta en tu sistema
 
 app = FastAPI()
-app.mount("/static", StaticFiles(directory="."), name="static")
+app.mount("/static", StaticFiles(directory="static/"), name="static")
 
 
 class ImageSchema:
@@ -29,11 +29,12 @@ async def upload_image(file: UploadFile = File(...)):
 
 @app.get("/", response_class=HTMLResponse)
 async def get_root(request: Request):
-    with open("index.html", "r") as f:
+    with open("static/index.html", "r") as f:
         html_content = f.read()
     return html_content
 
-
+"""
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
+"""
