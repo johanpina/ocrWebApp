@@ -1,0 +1,3 @@
+LOCALPATH='/mnt/compartido/'
+REMOTEPATH='//192.168.130.77/wwwroot/apiZonasAzules/imagenes/'
+TESSERACT_PATH='/usr/bin/tesseract'

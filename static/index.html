@@ -64,14 +64,15 @@
             formData.append('file', imageFile);
 
             try {
-                const response = await fetch('/upload/', {
+                const response = await fetch('/img2text/', {
                     method: 'POST',
                     body: formData
                 });
 
                 if (response.ok) {
                     const result = await response.json();
-                    ocrResultElement.textContent = result.text;
+                    //const jsonResult = JSON.stringify(result);
+                    ocrResultElement.textContent = result.texto;
                 } else {
                     ocrResultElement.textContent = 'Error en la respuesta del servidor';
                 }

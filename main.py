@@ -1,31 +1,15 @@
-import io
-import pytesseract
-from fastapi import FastAPI, File, UploadFile, Request
+
+from fastapi import FastAPI, File, UploadFile, Request, HTTPException
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
-from pytesseract import Output
-from PIL import Image
 
-# Configurar Tesseract
-pytesseract.pytesseract.tesseract_cmd = r'/usr/bin/tesseract'  # Asegúrate de que la ruta sea la correcta en tu sistema
+from schemas import HTTPError, OcrResult, ZerSchema
+from ocr import ocr_image, ocr_ZER
+
+SaveImagePath = '/mnt/compartido/'
 
 app = FastAPI()
 app.mount("/static", StaticFiles(directory="static/"), name="static")
-
-
-class ImageSchema:
-    data: bytes
-
-async def ocr_image(image_data: bytes) -> str:
-    image = Image.open(io.BytesIO(image_data))
-    text = pytesseract.image_to_string(image, lang="spa", config="--psm 6")  # Ajusta el idioma y la configuración según tus necesidades
-    return text
-
-@app.post("/upload/")
-async def upload_image(file: UploadFile = File(...)):
-    image_data = await file.read()
-    text = await ocr_image(image_data)
-    return {"text": text}
 
 @app.get("/", response_class=HTMLResponse)
 async def get_root(request: Request):
@@ -33,8 +17,23 @@ async def get_root(request: Request):
         html_content = f.read()
     return html_content
 
-"""
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
-"""
+@app.post("/img2text/",response_model=OcrResult)
+async def upload_image(file: UploadFile = File(...)):
+    image_data = await file.read()
+    text = await ocr_image(image_data)
+
+    return OcrResult(texto=text)
+
+@app.post("/InfoPagoZer/",response_model=ZerSchema,responses={
+                                                            200:{"model":ZerSchema},
+                                                            409:{"model":HTTPError, "description":"Error Saving Image in SharedFolder"}
+                                                            }# Este responses es para las excepciones en la documentación. Si se hace así queda la documentación.   
+          )
+
+async def upload_image(file: UploadFile = File(...)):
+    image_data = await file.read()
+    dictionary = await ocr_ZER(image_data,SaveImagePath)
+    if dictionary:
+        return dictionary
+    else:
+        raise HTTPException(status_code=409)
