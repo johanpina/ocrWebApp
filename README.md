@@ -50,25 +50,25 @@ sudo mount -t cifs //xxx.xxx.xxx.xx/folder_path /abs_route/to/image_folder -o us
 ## Configurate to mount disk always while starting server
 
 ```
-sudo nano /etc/fstab    #abrimos este archivo y agregamos la siguiente linea al final
+sudo nano /etc/fstab    #we open this file and add the next line to the end of this
 
 //<dirección-ip-del-servidor>/<nombre-de-la-carpeta-compartida> /mnt/compartido cifs username=<wind_username>,password=<wind_password>,domain=<PeopleDomain>,uid=<id-de-usuario>,gid=<id-de-grupo>,iocharset=utf8,file_mode=0777,dir_mode=0777 0 0
 ```
 
-para obtener el id de usuario:
+To obtain de user id
 
 ```
 id -u username
 ```
 
-Para obtener el id de grupo:
+To obtain group ID
 
 ```
 groupP = $(id -gn)
 getent group $(groupP) | cut -d: -f3
 ```
 
-Ejecutamos los siguientes códigos
+Execute the following comands
 
 ```
 sudo mount -a
@@ -82,7 +82,7 @@ sudo reboot
 sudo nano /etc/systemd/system/myapp.service
 ```
 
-Editar el archivo con esta informacion
+Edit the service file with the following information
 
 ```
 [Unit]
@@ -105,6 +105,8 @@ ExecStart first execute the venv activation and then the app deployment with uvi
 Configurate the environment and install pip dependencies with requirements.txt
 # Reload the systemd configuration
 
+```
 sudo systemctl daemon-reload
 sudo systemctl restart myapp.service
 sudo systemctl status myapp.service
+```
