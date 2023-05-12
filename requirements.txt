@@ -4,3 +4,4 @@ pytesseract
 pillow 
 tesseract
 python-multipart
+python-dotenv

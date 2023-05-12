@@ -4,21 +4,24 @@ from datetime import datetime
 import pytesseract
 from PIL import Image
 
+from dotenv import load_dotenv
+_=load_dotenv('.venv')
+
 from schemas import ZerSchema
 
 # Configurar Tesseract
-pytesseract.pytesseract.tesseract_cmd = r'/usr/bin/tesseract'  # Asegurar esta ruta instalada en el sistema.
-LOCALPATH = '/mnt/compartido/'
+pytesseract.pytesseract.tesseract_cmd = r""+os.getenv('TESSERACT_PATH')   #r'/usr/bin/tesseract'  # Asegurar esta ruta instalada en el sistema.
+LOCALPATH = os.getenv('LOCALPATH')#'/mnt/compartido/'
 
 MESES = {"enero":'01', "febrero":'02',"marzo":'03',"abril":'04',"mayo":'05' ,"junio":'06',"julio":'07',"agosto":'08',"septimbre":'09',
            "octubre":'10',"noviembre":'11',"diciembre":'12','a.m.':'am','p.m.':'pm','a. m.':'am','p. m.':'pm','alas':'','a las':''} 
 FORMAT = "%d de %m de %Y %H:%M %p"
 
-def repeatedImage(SaveImagepath:str, actual_image:str):
+def repeatedImage(actual_image:str):
     #Vamos a listar los archivos en la carpeta y luego vamos a verificar si ya existe.
     # si ya existe uno entonces vamos a retornar una excepción.
     actual_image = actual_image.split('/')[-1]
-    files = os.listdir(SaveImagepath)
+    files = os.listdir(LOCALPATH)
     # print(files,'\n',actual_image)
     return actual_image in files
     
@@ -57,11 +60,11 @@ async def ocr_image(image_data: bytes) -> str:
     text = pytesseract.image_to_string(image, lang="spa", config="--psm 6")  # Ajusta el idioma y la configuración según tus necesidades
     return text
 
-async def ocr_ZER(image_data: bytes,remoteImagepath: str) -> str:
+async def ocr_ZER(image_data: bytes) -> str:
     image = Image.open(io.BytesIO(image_data))
     text = pytesseract.image_to_string(image, lang="spa", config="--psm 6")  # Ajusta el idioma y la configuración según tus necesidades
     dict = dictionary_from_text(text=text)
-    if not repeatedImage(remoteImagepath,dict.path):
+    if not repeatedImage(dict.path):
         image.save(LOCALPATH+dict.path)
         return dict
     else:

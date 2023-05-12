@@ -6,8 +6,6 @@ from fastapi.staticfiles import StaticFiles
 from schemas import HTTPError, OcrResult, ZerSchema
 from ocr import ocr_image, ocr_ZER
 
-SaveImagePath = '/mnt/compartido/'
-
 app = FastAPI()
 app.mount("/static", StaticFiles(directory="static/"), name="static")
 
@@ -32,7 +30,7 @@ async def upload_image(file: UploadFile = File(...)):
 
 async def upload_image(file: UploadFile = File(...)):
     image_data = await file.read()
-    dictionary = await ocr_ZER(image_data,SaveImagePath)
+    dictionary = await ocr_ZER(image_data)
     if dictionary:
         return dictionary
     else:
