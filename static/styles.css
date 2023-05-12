@@ -58,3 +58,19 @@ pre {
     justify-content: space-around;
     width: 100%;
 }
+
+footer {
+    display: flex;
+        align-items: flex-start; /* Alinear elementos en la parte superior */
+        justify-content: flex-end;
+        background-color: #0056b3;
+        padding: 10px;
+        color: #666666;
+    font-family: 'Inter', sans-serif;
+}
+
+.logo {
+    width: 280px;
+    height: 119px;
+    margin-right: 10px;
+}
