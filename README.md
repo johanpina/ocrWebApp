@@ -14,7 +14,7 @@ cd ocrWebApp/
 ```
 sudo apt install tesseract-ocr
 sudo apt-get install tesseract-ocr-spa
-
+sudo apt-get install cifs-utils
 ```
 
 ## Virtual environment creation
@@ -25,14 +25,12 @@ First we have to create an activate the virtual environment
 ```
 python3 -m venv .env
 source .env/bin/activate
-
 ```
 
 ## Python packages installation 
 
 ```
 pip install -r requirements.txt
-
 ```
 
 
@@ -40,6 +38,5 @@ pip install -r requirements.txt
 
 ```
 uvicorn main:app --reload
-
 ```
 
