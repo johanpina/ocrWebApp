@@ -33,26 +33,70 @@ def text2date(textFecha:str)-> str:
     return datetime.strptime(textFecha, FORMAT).__str__()
     
 def dictionary_from_text(text):
-  text_list = text.split('\n')
-  conv_ind =  text_list.index('Conversación')+1
-  fecha = text_list[-4]
-  referencia= text_list[3]
-  nombre = text_list[6]
-  placa = text_list[conv_ind].translate( { ord("-"): None } ).upper()
-  Pago = float(text_list[-6].replace(",",".")[1::])
+    text_list = text.split('\n')
 
-  fecha_str = text2date(fecha)
-  ## Forma de lo que vamos a retornar.
-  dictionary = ZerSchema(
-      referencia=referencia,
-      nombre=nombre,
-      placa=placa,
-      pago=Pago,
-      fecha=fecha_str,
-      #path = imagePath/reference/nombre
-      path = f"{referencia}_{placa}_{nombre.replace(' ','-')}.jpg"
-  )
-  return dictionary
+    try:
+        fechaIndex = text_list.index("Fecha")
+        fecha = text_list[fechaIndex+1]
+    except:
+        fecha = None    
+
+    try:
+        refereniciaTextIndex = text_list.index("Número de referencia")+1
+        referencia= text_list[refereniciaTextIndex]
+    except:
+       referencia = None
+    
+    try:
+        ## Vamos a buscar si hay un De o Para
+        for i, line in enumerate(text_list):
+            if "De" in line:
+                index = i
+                break
+            if "Para" in line:
+                index = i 
+                break  
+        
+        nombre = text_list[index+1]
+    except:
+        nombre = None 
+
+    try:
+        conv_ind =  text_list.index('Conversación')
+        placa = text_list[conv_ind+1].translate( { ord("-"): None } ).upper()
+    except:
+        placa = None
+
+    try:
+        pagoFieldIndex = text_list.index("¿Cuánto?")+1
+        Pago = int(text_list[pagoFieldIndex].replace(".","").replace(",",".")[1::])
+    except:
+        Pago = None
+
+    try:    
+        fecha_str = text2date(fecha)
+        dateToSave = fecha_str.split(" ")[0].replace("-","_")
+    except: 
+        fecha_str = None
+        dateToSave = None
+    
+    if not (referencia and nombre and placa and fecha and Pago):
+        dictionary = ZerSchema(path="")
+    else:
+
+        ## Forma de lo que vamos a retornar.
+        dictionary = ZerSchema(
+            referencia=referencia,
+            nombre=nombre,
+            placa=placa,
+            pago=Pago,
+            fecha=fecha_str,
+            
+            #path = imagePath/reference/nombre
+            path = f"{referencia}_{placa}_{nombre.replace(' ','-')}_{dateToSave}.jpg"
+        )
+    #print(dictionary)
+    return dictionary
 
 
 async def ocr_image(image_data: bytes) -> str:
@@ -64,8 +108,12 @@ async def ocr_ZER(image_data: bytes) -> str:
     image = Image.open(io.BytesIO(image_data))
     text = pytesseract.image_to_string(image, lang="spa", config="--psm 6")  # Ajusta el idioma y la configuración según tus necesidades
     dict = dictionary_from_text(text=text)
-    if not repeatedImage(dict.path):
-        image.save(LOCALPATH+dict.path)
-        return dict
+
+    if dict.path != "":
+        if not repeatedImage(dict.path):
+        
+            image.save(LOCALPATH+dict.path)
+            return dict
+        else: return None
     else:
-        return None
+        return -1

@@ -1,0 +1,46 @@
+mkdir /mnt/compartido/
+sudo chown -R 0777 /mnt/compartido/
+
+# instalamos las dependencias necesarias archivo: installing.sh
+
+sudo mount -t cifs //192.168.130.77/wwwroot/apiZonasAzules/imagenes /mnt/compartido -o username=jspinad,password=People.2220,domain=peoplecontact.com.co
+Agregar al archivo /etc/fstab>> //192.168.130.77/wwwroot/apiZonasAzules/imagenes /mnt/compartido cifs username=jspinad,password=People.2220,domain=peoplecontact.com.co,uid=1000,gid=1000,iocharset=utf8,file_mode=0777,dir_mode=0777 0 0
+sudo mount -a
+sudo reboot
+
+# Vamos a configurar el servicio :
+
+sudo nano /etc/systemd/system/ocrapi.service
+
+editar el archivo con esta informacion
+
+'''
+[Unit]
+Description=OCR application for people Contact
+After=network.target
+
+[Service]
+User=administrador
+WorkingDirectory=/home/administrador/ocrWebApp
+ExecStart=/bin/bash -c "source /home/administrador/ocrWebApp/.env/bin/activate && /home/administrador/ocrWebApp/.env/bin/uvicorn main:app --host 0.0.0.0 --port 8000"
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+
+
+'''
+-Guardamos los cambios-
+
+En este caso se debe tener en cuenta que ExecStart ejecuta primero la activacion del ambiente y luego el despliegue de la aplicación con uvicorn
+
+
+python3 -m venv .env 
+pip install -r requirements.txt
+source .env/bin/activate
+
+# Recargamos la configuracion del systemd
+
+sudo systemctl daemon-reload
+sudo systemctl restart ocrapi.service
+sudo systemctl status ocrapi.service
