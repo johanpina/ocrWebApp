@@ -12,6 +12,7 @@ from io import BytesIO
 
 app = FastAPI(title='OCR PeopleContact')
 
+
 # Configure CORS settings
 app.add_middleware(
     CORSMiddleware,
@@ -53,7 +54,7 @@ async def upload_image(file: UploadFile = File(...)):
         raise HTTPException(status_code=status.HTTP_410_GONE, detail="Formato de imágen incorrecto")
     """
     dictionary = await ocr_ZER(image_data)
-
+    #print(dictionary)
     if dictionary != -1:
 
         if dictionary:

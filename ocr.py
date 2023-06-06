@@ -40,7 +40,7 @@ def dictionary_from_text(text):
         fecha = text_list[fechaIndex+1]
     except:
         fecha = None    
-
+    
     try:
         refereniciaTextIndex = text_list.index("Número de referencia")+1
         referencia= text_list[refereniciaTextIndex]
@@ -69,7 +69,9 @@ def dictionary_from_text(text):
 
     try:
         pagoFieldIndex = text_list.index("¿Cuánto?")+1
-        Pago = int(text_list[pagoFieldIndex].replace(".","").replace(",",".")[1::])
+        
+        Pago = int(text_list[pagoFieldIndex][1::].replace(',','.').split('.')[0])
+        #print("Este es el pago:",Pago)
     except:
         Pago = None
 
@@ -80,8 +82,10 @@ def dictionary_from_text(text):
         fecha_str = None
         dateToSave = None
     
+    #print(f"referencia={referencia}, nombre={nombre}, placa={placa}, fecha={fecha}, pago={Pago}")
     if not (referencia and nombre and placa and fecha and Pago):
         dictionary = ZerSchema(path="")
+        #print("No hay nada")
     else:
 
         ## Forma de lo que vamos a retornar.
@@ -107,8 +111,9 @@ async def ocr_image(image_data: bytes) -> str:
 async def ocr_ZER(image_data: bytes) -> str:
     image = Image.open(io.BytesIO(image_data))
     text = pytesseract.image_to_string(image, lang="spa", config="--psm 6")  # Ajusta el idioma y la configuración según tus necesidades
+    #print(text)
     dict = dictionary_from_text(text=text)
-
+    #print(dict)
     if dict.path != "":
         if not repeatedImage(dict.path):
         
